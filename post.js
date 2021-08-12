@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-window['BPGDecoder'] = function(ctx) {
+function BPGDecoder (ctx) {
     this.ctx = ctx;
     this['imageData'] = null;
     this['onload'] = null;
@@ -29,7 +29,9 @@ window['BPGDecoder'] = function(ctx) {
     this['loop_count'] = 0;
 }
 
-window['BPGDecoder'].prototype = {
+window['BPGDecoder'] = BPGDecoder;
+
+BPGDecoder.prototype = {
 
 malloc: Module['cwrap']('malloc', 'number', [ 'number' ]),
 

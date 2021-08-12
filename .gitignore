@@ -1,0 +1,9 @@
+*.o
+*.a
+*.wasm
+*.d
+x265.out/
+bpgdec
+bpgenc
+bpgview
+bpg*.js

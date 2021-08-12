@@ -3,7 +3,7 @@
 # Compile options:
 #
 # Enable compilation of Javascript decoder with Emscripten
-#USE_EMCC=y
+USE_EMCC=y
 # Enable x265 for the encoder
 USE_X265=y
 # Enable the JCTVC code (best quality but slow) for the encoder
@@ -47,11 +47,11 @@ CFLAGS+=-DRExt__HIGH_BIT_DEPTH_SUPPORT
 endif
 
 # Emscriptem config
-EMLDFLAGS:=-s "EXPORTED_FUNCTIONS=['_bpg_decoder_open','_bpg_decoder_decode','_bpg_decoder_get_info','_bpg_decoder_start','_bpg_decoder_get_frame_duration','_bpg_decoder_get_line','_bpg_decoder_close','_malloc','_free']"
-EMLDFLAGS+=-s NO_FILESYSTEM=1 -s NO_BROWSER=1
+EMLDFLAGS:=-s "EXPORTED_FUNCTIONS=['_bpg_decoder_open','_bpg_decoder_decode','_bpg_decoder_get_info','_bpg_decoder_start','_bpg_decoder_get_frame_duration','_bpg_decoder_get_line','_bpg_decoder_close','_malloc','_free']" -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap"]'
+EMLDFLAGS+=-s NO_FILESYSTEM=1
 #EMLDFLAGS+=-O1 --pre-js pre.js --post-js post.js
 # Note: the closure compiler is disabled because it adds unwanted global symbols
-EMLDFLAGS+=-O3 --memory-init-file 0 --closure 0 --pre-js pre.js --post-js post.js
+EMLDFLAGS+=-O3 --memory-init-file 0 --closure 1 --pre-js pre.js --post-js post.js
 EMCFLAGS:=$(CFLAGS)
 
 LDFLAGS=-g
@@ -114,9 +114,9 @@ endif
 
 x265.out:
 	mkdir -p x265.out/8bit x265.out/10bit x265.out/12bit
-	cd x265.out/12bit && cmake ../../x265/source $(CMAKE_OPTS) -DHIGH_BIT_DEPTH=ON -DEXPORT_C_API=OFF -DENABLE_SHARED=OFF -DENABLE_CLI=OFF -DMAIN12=ON
-	cd x265.out/10bit && cmake ../../x265/source $(CMAKE_OPTS) -DHIGH_BIT_DEPTH=ON -DEXPORT_C_API=OFF -DENABLE_SHARED=OFF -DENABLE_CLI=OFF -DMAIN10=ON
-	cd x265.out/8bit && cmake ../../x265/source $(CMAKE_OPTS) -DLINKED_10BIT=ON -DLINKED_12BIT=ON -DENABLE_SHARED=OFF -DENABLE_CLI=OFF
+	cd x265.out/12bit && cmake ../../x265/source $(CMAKE_OPTS) -DENABLE_LIBNUMA=OFF -DHIGH_BIT_DEPTH=ON -DEXPORT_C_API=OFF -DENABLE_SHARED=OFF -DENABLE_CLI=OFF -DMAIN12=ON
+	cd x265.out/10bit && cmake ../../x265/source $(CMAKE_OPTS) -DENABLE_LIBNUMA=OFF -DHIGH_BIT_DEPTH=ON -DEXPORT_C_API=OFF -DENABLE_SHARED=OFF -DENABLE_CLI=OFF -DMAIN10=ON
+	cd x265.out/8bit && cmake ../../x265/source $(CMAKE_OPTS) -DENABLE_LIBNUMA=OFF -DLINKED_10BIT=ON -DLINKED_12BIT=ON -DENABLE_SHARED=OFF -DENABLE_CLI=OFF
 
 # use this target to manually rebuild x265
 x265_make: | x265.out
@@ -220,7 +220,7 @@ CLEAN_DIRS=doc html libavcodec libavutil \
      jctvc jctvc/TLibEncoder jctvc/TLibVideoIO jctvc/TLibCommon jctvc/libmd5
 
 clean: x265_clean
-	rm -f $(PROGS) *.o *.a *.d *~ $(addsuffix /*.o, $(CLEAN_DIRS)) \
+	rm -f $(PROGS) *.wasm *.o *.a *.d *~ $(addsuffix /*.o, $(CLEAN_DIRS)) \
           $(addsuffix /*.d, $(CLEAN_DIRS)) $(addsuffix /*~, $(CLEAN_DIRS)) \
           $(addsuffix /*.a, $(CLEAN_DIRS))
 
